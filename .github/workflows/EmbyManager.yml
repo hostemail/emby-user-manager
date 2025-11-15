@@ -51,4 +51,4 @@ jobs:
           push: true
           tags: vipsir/EmbyManager:latest
           cache-from: type=registry,ref=vipsir/EmbyManager:buildcache
-          cache-to: type=registry,ref=vipsir/EmbyManager:buildcache,mode=max
+          cache-to: type=registry,ref=vipsir/embymanager:buildcache,mode=max
