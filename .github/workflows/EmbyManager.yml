@@ -50,5 +50,5 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
           tags: vipsir/EmbyManager:latest
-          cache-from: type=registry,ref=vipsir/EmbyManager:buildcache
+          cache-from: type=registry,ref=vipsir/embymanager:buildcache
           cache-to: type=registry,ref=vipsir/embymanager:buildcache,mode=max
