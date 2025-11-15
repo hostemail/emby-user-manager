@@ -49,6 +49,6 @@ jobs:
           file: ./dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
-          tags: vipsir/EmbyManager:latest
+          tags: vipsir/embymanager:latest
           cache-from: type=registry,ref=vipsir/embymanager:buildcache
           cache-to: type=registry,ref=vipsir/embymanager:buildcache,mode=max
