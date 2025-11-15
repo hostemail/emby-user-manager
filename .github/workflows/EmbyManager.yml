@@ -1,0 +1,54 @@
+name: Build and Push Multi-Arch Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+      - '.github/workflows/EmbyManager.yml'
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify binaries
+        run: |
+          echo "检查仓库根目录文件:"
+          ls -la
+          echo "检查二进制文件:"
+          ls -la EmbyManager-* || echo "未找到EmbyManager二进制文件"
+          echo "检查web目录:"
+          ls -la web/ && echo "web目录存在" || echo "web目录不存在"
+          echo "检查configs目录:"
+          ls -la configs/ && echo "configs目录存在" || echo "configs目录不存在"
+          echo "检查Dockerfile:"
+          ls -la dockerfile && echo "dockerfile存在" || echo "dockerfile不存在"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        id: docker_build
+        with:
+          context: .
+          file: ./dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: vipsir/EmbyManager:latest
+          cache-from: type=registry,ref=vipsir/EmbyManager:buildcache
+          cache-to: type=registry,ref=vipsir/EmbyManager:buildcache,mode=max
