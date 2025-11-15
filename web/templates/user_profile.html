@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">个人中心 - 加载中...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .home-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .home-btn:hover {
+            background: #5a6268;
+        }
+        
+        .password-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .password-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .content {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+            width: 100%;
+        }
+        
+        .profile-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .profile-card h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .profile-card h2::before {
+            content: "👤";
+            font-size: 18px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            font-size: 14px;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 14px;
+            text-align: right;
+            flex: 1;
+            margin-left: 1rem;
+            word-break: break-all;
+        }
+        
+        .status-pending { color: #ffc107; }
+        .status-approved { color: #28a745; }
+        .status-rejected { color: #dc3545; }
+        .status-expired { color: #6c757d; }
+        
+        /* 修改：服务器信息卡片样式与个人信息卡片保持一致 */
+        .server-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            display: none; /* 默认隐藏，审批通过后显示 */
+        }
+        
+        .server-info.show {
+            display: block;
+        }
+        
+        .server-info h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .server-info h2::before {
+            content: "🌐";
+            font-size: 18px;
+        }
+        
+        .server-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .server-item:last-child {
+            border-bottom: none;
+        }
+        
+        .server-label {
+            font-weight: 500;
+            color: #666;
+            font-size: 14px;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+        
+        .server-value {
+            color: #333;
+            font-size: 14px;
+            text-align: right;
+            flex: 1;
+            margin-left: 1rem;
+            word-break: break-all;
+        }
+        
+        .server-tip {
+            color: #888;
+            font-size: 14px;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+        }
+        
+        .change-password-section {
+            margin-bottom: 2rem;
+        }
+        
+        .change-password-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none; /* 默认隐藏 */
+        }
+        
+        .change-password-card.show {
+            display: block; /* 显示时设置为block */
+        }
+        
+        .change-password-card h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .change-password-card h2::before {
+            content: "🔒";
+            font-size: 18px;
+        }
+        
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .form-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+        
+        .form-group input {
+            flex: 1;
+            margin-left: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .alert {
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .alert-error {
+            background: #fee;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert-success {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            font-size: 14px;
+            background: white;
+            border-top: 1px solid #eee;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 平板设备优化 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .content {
+                margin: 1.5rem auto;
+                max-width: 90%;
+            }
+            
+            .profile-card,
+            .change-password-card,
+            .server-info {
+                padding: 1.5rem;
+            }
+        }
+
+        /* 移动设备优化 */
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .logo {
+                width: 100%;
+            }
+            
+            .logo h1 {
+                font-size: 20px;
+                text-align: center;
+                width: 100%;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+            
+            .footer {
+                padding: 1.5rem 0.75rem;
+                font-size: 12px;
+            }
+                       
+            #userWelcome {
+                font-size: 14px;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 12px;
+            }
+            
+            .content {
+                margin: 1rem auto;
+                padding: 0 0.75rem;
+                max-width: 100%;
+            }
+            
+            .profile-card,
+            .change-password-card,
+            .server-info {
+                padding: 1.25rem;
+                margin-bottom: 1.5rem;
+                border-radius: 6px;
+            }
+            
+            .profile-card h2,
+            .change-password-card h2,
+            .server-info h2 {
+                font-size: 18px;
+                margin-bottom: 1.25rem;
+                text-align: center;
+            }
+            
+            /* 移动端保持水平布局，左右对齐 */
+            .info-item,
+            .form-group,
+            .server-item {
+                flex-direction: row;
+                align-items: center;
+                padding: 0.6rem 0;
+            }
+            
+            .info-label,
+            .form-group label,
+            .server-label {
+                font-size: 13px;
+                min-width: 70px;
+                text-align: left;
+            }
+            
+            .info-value,
+            .form-group input,
+            .server-value {
+                font-size: 13px;
+                text-align: right;
+                margin-left: 1rem;
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .form-group {
+                margin-bottom: 0.875rem;
+            }
+            
+            .form-group input {
+                padding: 0.625rem;
+                font-size: 16px;
+                border-radius: 4px;
+            }
+            
+            .btn-primary {
+                padding: 0.625rem;
+                font-size: 15px;
+                border-radius: 4px;
+            }
+            
+            .alert {
+                padding: 0.625rem;
+                font-size: 13px;
+                margin-bottom: 0.875rem;
+                border-radius: 4px;
+                text-align: center;
+            }
+            
+            .server-tip {
+                font-size: 11px;
+                margin-top: 0.875rem;
+                padding-top: 0.625rem;
+            }
+        }
+
+        /* 小屏幕手机优化 */
+        @media (max-width: 360px) {
+            .header {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .logo h1 {
+                font-size: 18px;
+            }
+            
+            .user-info {
+                gap: 0.3rem;
+            }
+            
+            .btn {
+                padding: 0.35rem 0.7rem;
+                font-size: 11px;
+            }
+            
+            .content {
+                padding: 0 0.5rem;
+            }
+            
+            .profile-card,
+            .change-password-card,
+            .server-info {
+                padding: 1rem;
+            }
+            
+            .profile-card h2,
+            .change-password-card h2,
+            .server-info h2 {
+                font-size: 16px;
+                margin-bottom: 1rem;
+            }
+            
+            .info-item,
+            .form-group,
+            .server-item {
+                padding: 0.5rem 0;
+            }
+            
+            .info-label,
+            .form-group label,
+            .server-label {
+                min-width: 65px;
+                font-size: 12px;
+            }
+            
+            .info-value,
+            .form-group input,
+            .server-value {
+                font-size: 12px;
+            }
+
+            .footer {
+                padding: 1.25rem 0.5rem;
+                font-size: 11px;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .content {
+                margin: 1rem auto;
+            }
+            
+            .profile-card,
+            .change-password-card,
+            .server-info {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <h1 id="serviceName">新时代雷锋精品影院</h1>
+        </div>
+        <div class="user-info">
+            <span id="userWelcome">欢迎，用户</span>
+            <a href="/" class="btn home-btn">首页</a>
+            <button class="btn password-btn" onclick="togglePasswordCard()">修改密码</button>
+            <button class="btn logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="profile-card">
+            <h2>个人信息</h2>
+            <div class="info-item">
+                <span class="info-label">用户ID：</span>
+                <span class="info-value" id="userId">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">用户名：</span>
+                <span class="info-value" id="username">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">邮箱：</span>
+                <span class="info-value" id="email">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">状态：</span>
+                <span class="info-value" id="status">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">注册时间：</span>
+                <span class="info-value" id="createdAt">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">过期时间：</span>
+                <span class="info-value" id="expiryDate">-</span>
+            </div>
+        </div>
+        
+        <!-- 修改：服务器信息卡片，样式与个人信息卡片保持一致 -->
+        <div class="server-info" id="serverInfo">
+            <h2>服务器地址</h2>
+            <div class="server-item">
+                <span class="server-label">线路1 (ipv4)</span>
+                <span class="server-value">
+                    <a href="#" id="serverLink1" target="_blank" rel="noopener noreferrer">加载中...</a>
+                </span>
+            </div>
+            <div class="server-item">
+                <span class="server-label">线路2 (ipv6)</span>
+                 <span class="server-value">
+                    <a href="#" id="serverLink2" target="_blank" rel="noopener noreferrer">加载中...</a>
+                </span>
+            </div>
+            <div class="server-tip">支持Emby、Yamby、Hills、Infuse等客户端访问，端口均为443.</div>
+        </div>
+        
+        <div class="change-password-section">
+            <div class="change-password-card" id="changePasswordCard">
+                <h2>修改密码</h2>
+                <div id="alertMessage" class="alert"></div>
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="oldPassword">当前密码</label>
+                        <input type="password" id="oldPassword" name="oldPassword" required placeholder="请输入当前密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码</label>
+                        <input type="password" id="newPassword" name="newPassword" required minlength="6" placeholder="请输入新密码（至少6位）">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6" placeholder="请再次输入新密码">
+                    </div>
+                    <button type="submit" class="btn-primary">确认修改</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let isPasswordCardVisible = false;
+        let appConfig = {
+            serverName: '新时代雷锋',
+            line1Url: 'https://github.com/hostemail',
+            line2Url: 'https://t.me/rightcmp'
+        };
+        
+        // 页面加载时检查登录状态和加载配置
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadAppConfig();
+            updatePageContent();
+            checkLoginStatus();
+            loadUserProfile();
+        });
+
+        // 加载应用配置
+        async function loadAppConfig() {
+            try {
+                const response = await fetch('/api/users/app-config');
+                if (response.ok) {
+                    const data = await response.json();
+                    appConfig = {
+                        serverName: data.server_name || appConfig.serverName,
+                        line1Url: data.line1_url || appConfig.line1Url,
+                        line2Url: data.line2_url || appConfig.line2Url
+                    };
+                }
+            } catch (error) {
+                console.error('Failed to load app config:', error);
+            }
+        }
+
+        // 更新页面内容
+        function updatePageContent() {
+            // 更新页面标题
+            document.getElementById('pageTitle').textContent = `个人中心 - ${appConfig.serverName}`;
+            
+            // 更新服务名称
+            document.getElementById('serviceName').textContent = appConfig.serverName;
+            
+            // 更新服务器地址信息
+            document.getElementById('serverLink1').textContent = appConfig.line1Url;
+            document.getElementById('serverLink1').href = appConfig.line1Url;
+            document.getElementById('serverLink2').textContent = appConfig.line2Url;
+            document.getElementById('serverLink2').href = appConfig.line2Url;
+        }
+        
+        function checkLoginStatus() {
+            const token = getUserToken();
+            const userInfo = localStorage.getItem('user_info');
+            
+            if (!token || !userInfo) {
+                alert('请先登录');
+                window.location.href = '/user-login';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userInfo);
+                document.getElementById('userWelcome').textContent = `欢迎，${user.username}`;
+                currentUser = user;
+            } catch (error) {
+                console.error('Failed to parse user info:', error);
+                window.location.href = '/user-login';
+            }
+        }
+        
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/users/profile', {
+                    headers: {
+                        'Authorization': getUserToken()
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load user profile');
+                }
+                
+                const data = await response.json();
+                const user = data.user;
+                
+                // 更新页面信息
+                document.getElementById('userId').textContent = user.id;
+                document.getElementById('username').textContent = user.username;
+                document.getElementById('email').textContent = user.email;
+                
+                // 状态显示
+                const statusMap = {
+                    'pending': '待审批',
+                    'approved': '已批准',
+                    'rejected': '已拒绝',
+                    'expired': '已过期'
+                };
+                const statusElement = document.getElementById('status');
+                statusElement.textContent = statusMap[user.status] || user.status;
+                statusElement.className = `info-value status-${user.status}`;
+                
+                // 日期显示
+                document.getElementById('createdAt').textContent = formatDate(user.created_at);
+                document.getElementById('expiryDate').textContent = user.expiry_date ? formatDate(user.expiry_date) : '-';
+                
+                // 如果用户状态是已批准，显示服务器信息卡片
+                if (user.status === 'approved') {
+                    document.getElementById('serverInfo').classList.add('show');
+                } else {
+                    document.getElementById('serverInfo').classList.remove('show');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load user profile:', error);
+                showAlert('加载用户信息失败', 'error');
+            }
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                return '-';
+            }
+        }
+        
+        // 切换修改密码卡片显示/隐藏
+        function togglePasswordCard() {
+            const passwordCard = document.getElementById('changePasswordCard');
+            const passwordBtn = document.querySelector('.password-btn');
+            
+            isPasswordCardVisible = !isPasswordCardVisible;
+            
+            if (isPasswordCardVisible) {
+                passwordCard.classList.add('show');
+                passwordBtn.textContent = '收起密码';
+            } else {
+                passwordCard.classList.remove('show');
+                passwordBtn.textContent = '修改密码';
+                // 重置表单
+                document.getElementById('changePasswordForm').reset();
+                // 隐藏提示信息
+                document.getElementById('alertMessage').style.display = 'none';
+            }
+        }
+        
+        // 修改密码表单提交
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('新密码和确认密码不一致', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showAlert('新密码长度至少6位', 'error');
+                return;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '修改中...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/users/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': getUserToken()
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('密码修改成功', 'success');
+                    document.getElementById('changePasswordForm').reset();
+                    // 3秒后自动收起修改密码卡片
+                    setTimeout(() => {
+                        togglePasswordCard();
+                    }, 3000);
+                } else {
+                    showAlert(data.error || '密码修改失败', 'error');
+                }
+            } catch (error) {
+                console.error('Change password error:', error);
+                showAlert('网络错误，请稍后重试', 'error');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        function logout() {
+            localStorage.removeItem('user_token');
+            localStorage.removeItem('user_info');
+            window.location.href = '/user-login';
+        }
+        
+        function getUserToken() {
+            return localStorage.getItem('user_token');
+        }
+
+        // 移动端优化：点击输入框时自动聚焦
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('touchstart', function() {
+                    this.focus();
+                });
+            });
+        });
+    </script>
+    <div class="footer">
+        Powered by <a href="https://github.com/hostemail/EmbyManager" target="_blank">EmbyManager</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+server:
+  port: 8080
+  debug: true
+
+emby:
+  server_url: ""
+  api_key: ""
+  template_user_id: ""
+  server_name: ""
+  line1_url: ""
+  line2_url: ""
+
+database:
+  path: "./data/users.db"
+
+security:
+  default_expiry_days: 30
+  admin_approval_required: true
+  registration_enabled: true

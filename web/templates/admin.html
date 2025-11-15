@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - Emby用户管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .logo h1 {
+            color: #333;
+            font-size: 24px;
+            white-space: nowrap;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: nowrap;
+        }
+        
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        /* 注册开关样式 */
+        .registration-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            white-space: nowrap;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        #registrationStatus {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        /* 搜索区域样式 */
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0 2rem 1rem 2rem;
+            flex-shrink: 0;
+        }
+        
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .search-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-btn {
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            height: fit-content;
+        }
+        
+        .search-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .reset-btn {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            height: fit-content;
+        }
+        
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        /* 分页样式 */
+        .pagination-section {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 1rem 2rem 2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .pagination-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #666;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .page-size-select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+        
+        .pagination-btn:disabled {
+            background: #f8f9fa;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .pagination-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .pagination-pages {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        /* 桌面端统计卡片布局 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem;
+            flex-shrink: 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        /* 移动端统计卡片布局 - 默认隐藏 */
+        .stats-grid {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .stat-card-horizontal {
+            background: white;
+            padding: 0.75rem 0.5rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .stat-card-horizontal:hover {
+            transform: translateY(-1px);
+        }
+        
+        .stat-number-horizontal {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #667eea;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label-horizontal {
+            color: #666;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        
+        .content {
+            margin: 0 2rem;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .users-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            height: fit-content;
+        }
+        
+        table {
+            width: 100%; /* 修改：表格宽度100%填充 */
+            border-collapse: collapse;
+            table-layout: fixed; /* 添加：固定表格布局 */
+        }
+        
+        th, td {
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* 优化各列宽度分配，减少空白 */
+        th:nth-child(1), td:nth-child(1) { /* ID列 */
+            width: 5%;
+            min-width: 40px;
+        }
+        
+        th:nth-child(2), td:nth-child(2) { /* 用户名列 */
+            width: 15%;
+            min-width: 80px;
+        }
+        
+        th:nth-child(3), td:nth-child(3) { /* 邮箱列 */
+            width: 20%;
+            min-width: 120px;
+        }
+        
+        th:nth-child(4), td:nth-child(4) { /* 状态列 */
+            width: 10%;
+            min-width: 70px;
+        }
+        
+        th:nth-child(5), td:nth-child(5) { /* 过期时间列 */
+            width: 15%;
+            min-width: 130px;
+        }
+        
+        th:nth-child(6), td:nth-child(6) { /* 注册时间列 */
+            width: 15%;
+            min-width: 130px;
+        }
+        
+        th:nth-child(7), td:nth-child(7) { /* 操作列 */
+            width: 20%;
+            min-width: 150px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 13px;
+        }
+        
+        td {
+            font-size: 13px;
+        }
+        
+        .status-pending { color: #ffc107; }
+        .status-approved { color: #28a745; }
+        .status-rejected { color: #dc3545; }
+        .status-expired { color: #6c757d; }
+        
+        .btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            margin: 0 0.1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-approve { background: #28a745; color: white; }
+        .btn-reject { background: #dc3545; color: white; }
+        .btn-enable { background: #17a2b8; color: white; }
+        .btn-disable { background: #ffc107; color: white; }
+        .btn-delete { background: #6c757d; color: white; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 平板设备优化 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .search-section {
+                margin: 0 1rem 1rem 1rem;
+                padding: 1rem;
+            }
+            
+            .stats {
+                margin: 1.5rem;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .content {
+                margin: 0 1rem;
+            }
+            
+            .pagination-section {
+                margin: 1rem 1rem 1.5rem 1rem;
+                padding: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.25rem;
+            }
+            
+            .stat-number {
+                font-size: 1.75rem;
+            }
+            
+            .search-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-group {
+                min-width: auto;
+            }
+            
+            .search-btn, .reset-btn {
+                width: 100%;
+            }
+            
+            /* 平板端表格列宽调整 */
+            th:nth-child(1), td:nth-child(1) { width: 8%; }
+            th:nth-child(2), td:nth-child(2) { width: 15%; }
+            th:nth-child(3), td:nth-child(3) { width: 18%; }
+            th:nth-child(4), td:nth-child(4) { width: 12%; }
+            th:nth-child(5), td:nth-child(5) { width: 17%; }
+            th:nth-child(6), td:nth-child(6) { width: 17%; }
+            th:nth-child(7), td:nth-child(7) { width: 13%; }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            font-size: 14px;
+            background: white;
+            border-top: 1px solid #eee;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 移动设备优化 */
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.75rem 1rem;
+                flex-direction: row; /* 修改：保持横向布局 */
+                gap: 0.75rem;
+                align-items: center;
+            }
+        /* 更紧凑的移动端表格列宽 */
+            th:nth-child(1), td:nth-child(1) { /* ID列 */
+                width: 4%;
+                min-width: 25px;
+            }
+            
+            th:nth-child(2), td:nth-child(2) { /* 用户名列 */
+                width: 10%;
+                min-width: 50px;
+            }
+            
+            th:nth-child(3), td:nth-child(3) { /* 邮箱列 */
+                width: 18%;
+                min-width: 90px;
+            }
+            
+            th:nth-child(4), td:nth-child(4) { /* 状态列 */
+                width: 8%;
+                min-width: 50px;
+            }
+            
+            th:nth-child(5), td:nth-child(5) { /* 过期时间列 */
+                width: 20%;
+                min-width: 120px;
+            }
+            
+            th:nth-child(6), td:nth-child(6) { /* 注册时间列 */
+                width: 20%;
+                min-width: 120px;
+            }
+            
+            th:nth-child(7), td:nth-child(7) { /* 操作列 */
+                width: 20%;
+                min-width: 130px;
+            }            
+            
+            .logo {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .logo h1 {
+                font-size: 18px;
+                text-align: left;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .user-info {
+                flex: 0 0 auto;
+                gap: 0.5rem;
+                flex-wrap: nowrap;
+            }
+
+            .footer {
+                padding: 1.5rem 0.75rem;
+                font-size: 12px;
+            }
+                       
+            #adminUsername {
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            
+            .registration-toggle {
+                margin-right: 0;
+                margin-bottom: 0;
+                order: 0;
+                width: auto;
+            }
+            
+            .logout-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 12px;
+            }
+            
+            /* 移动端隐藏桌面统计卡片，显示网格布局 */
+            .stats {
+                display: none;
+            }
+            
+            .stats-grid {
+                display: grid;
+            }
+            
+            .content {
+                margin: 0 1rem;
+                flex: 1;
+            }
+            
+            .users-table {
+                border-radius: 6px;
+            }
+            
+            table {
+                min-width: 650px;
+            }
+            
+            th, td {
+                padding: 0.6rem 0.4rem;
+                font-size: 12px;
+            }
+            
+            .btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 11px;
+                margin: 0 0.05rem;
+            }
+            
+            .modal {
+                padding: 15px;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+                border-radius: 6px;
+            }
+            
+            .form-group {
+                margin-bottom: 0.875rem;
+            }
+            
+            .form-group input, .form-group select, .form-group textarea {
+                padding: 0.625rem;
+                font-size: 16px;
+            }
+            
+            .pagination-section {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            
+            .pagination-info {
+                justify-content: center;
+            }
+            
+            .pagination-controls {
+                justify-content: center;
+            }
+            
+            /* 移动端搜索区域横向布局 */
+            .search-section {
+                padding: 1rem;
+            }
+            
+            .search-row {
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+                flex-wrap: nowrap;
+            }
+            
+            .search-group {
+                flex: 1;
+                min-width: 0;
+                margin-bottom: 0;
+            }
+            
+            .search-group label {
+                display: none; /* 移动端隐藏标签 */
+            }
+            
+            .search-input {
+                padding: 0.5rem;
+                font-size: 14px;
+            }
+            
+            .search-btn, .reset-btn {
+                padding: 0.5rem 1rem;
+                font-size: 12px;
+                width: auto;
+                flex: 0 0 auto;
+            }
+        }
+
+        /* 小屏幕手机优化 */
+        @media (max-width: 360px) {
+            .header {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .logo h1 {
+                font-size: 16px;
+            }
+            
+            .stats-grid {
+                margin: 0.75rem;
+                gap: 0.4rem;
+            }
+            
+            .stat-card-horizontal {
+                padding: 0.6rem 0.4rem;
+                min-height: 65px;
+            }
+            
+            .stat-number-horizontal {
+                font-size: 1.1rem;
+            }
+            
+            .stat-label-horizontal {
+                font-size: 10px;
+            }
+            
+            .content {
+                margin: 0 0.75rem;
+            }
+            
+            .footer {
+                padding: 1.25rem 0.5rem;
+                font-size: 11px;
+            }
+            
+            th, td {
+                padding: 0.5rem 0.3rem;
+                font-size: 11px;
+            }
+            
+            .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 10px;
+            }
+            
+            .modal-content {
+                padding: 1.25rem;
+            }
+            
+            /* 超小屏幕搜索区域调整 */
+            .search-row {
+                gap: 0.25rem;
+            }
+            
+            .search-btn, .reset-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 11px;
+            }
+            
+            .user-info {
+                gap: 0.25rem;
+            }
+            
+            #adminUsername {
+                font-size: 12px;
+            }
+            
+            .registration-toggle {
+                gap: 0.25rem;
+            }
+            
+            #registrationStatus {
+                font-size: 12px;
+            }
+        }
+
+        /* 超小屏幕手机优化 */
+        @media (max-width: 320px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(2, auto);
+                gap: 0.5rem;
+            }
+            
+            .stat-card-horizontal {
+                min-height: 60px;
+            }
+            
+            .stat-number-horizontal {
+                font-size: 1rem;
+            }
+            
+            .stat-label-horizontal {
+                font-size: 9px;
+            }
+            
+            .header {
+                padding: 0.5rem;
+            }
+            
+            .logo h1 {
+                font-size: 14px;
+            }
+            
+            .user-info {
+                gap: 0.25rem;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .stats-grid {
+                margin: 1rem;
+            }
+            
+            .content {
+                margin: 0 1rem;
+            }
+        }
+
+        /* 操作按钮组优化 */
+        .action-buttons {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0.1rem;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        @media (max-width: 480px) {
+            .action-buttons {
+                gap: 0.05rem;
+            }
+        }
+
+        /* 表格滚动提示 */
+        .table-scroll-hint {
+            display: none;
+            text-align: center;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .table-scroll-hint {
+                display: block;
+            }
+        }
+        
+        /* 加载状态 */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .loading::after {
+            content: " 加载中...";
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <h1>管理后台</h1>
+        </div>
+        <div class="user-info">
+            <span id="adminUsername">管理员</span>
+            <!-- 新增注册开关 -->
+            <div class="registration-toggle">
+                <label class="switch">
+                    <input type="checkbox" id="registrationToggle">
+                    <span class="slider"></span>
+                </label>
+                <span id="registrationStatus">注册开放</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+    
+    <!-- 桌面端统计卡片 -->
+    <div class="stats" id="stats">
+        <!-- 统计信息将通过JavaScript动态加载 -->
+    </div>
+    
+    <!-- 移动端统计卡片 - 默认隐藏 -->
+    <div class="stats-grid" id="statsGrid">
+        <!-- 移动端统计信息将通过JavaScript动态加载 -->
+    </div>
+    
+    <!-- 搜索区域 -->
+    <div class="search-section">
+        <div class="search-row">
+            <div class="search-group">
+                <label for="searchKeyword">关键词搜索</label>
+                <input type="text" id="searchKeyword" class="search-input" placeholder="用户名或邮箱">
+            </div>
+            <div class="search-group">
+                <label for="statusFilter">状态筛选</label>
+                <select id="statusFilter" class="search-input">
+                    <option value="">全部状态</option>
+                    <option value="pending">待审批</option>
+                    <option value="approved">已通过</option>
+                    <option value="rejected">已拒绝</option>
+                    <option value="expired">已过期</option>
+                </select>
+            </div>
+            <button class="search-btn" onclick="searchUsers()">搜索</button>
+            <button class="reset-btn" onclick="resetSearch()">重置</button>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="users-table">
+            <div class="table-scroll-hint">
+                ← 左右滑动查看完整表格 →
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>状态</th>
+                        <th>过期时间</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <!-- 用户数据将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 分页控件 -->
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>每页显示:</span>
+            <select id="pageSize" class="page-size-select" onchange="changePageSize()">
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20" selected>20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            <span id="totalInfo">共 0 条记录</span>
+        </div>
+        <div class="pagination-controls">
+            <button class="pagination-btn" id="prevPage" onclick="previousPage()" disabled>上一页</button>
+            <div class="pagination-pages" id="paginationPages">
+                <!-- 页码按钮将通过JavaScript动态生成 -->
+            </div>
+            <button class="pagination-btn" id="nextPage" onclick="nextPage()" disabled>下一页</button>
+        </div>
+    </div>
+    
+    <!-- 审批模态框 -->
+    <div class="modal" id="approvalModal">
+        <div class="modal-content">
+            <h3>用户审批</h3>
+            <form id="approvalForm">
+                <input type="hidden" id="approvalUserId">
+                <div class="form-group">
+                    <label>操作</label>
+                    <select id="approvalAction" required>
+                        <option value="approve">通过</option>
+                        <option value="reject">拒绝</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expiryDays">有效期（天）</label>
+                    <input type="number" id="expiryDays" value="30" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="approvalReason">审批意见</label>
+                    <textarea id="approvalReason" rows="3" placeholder="请输入审批意见（可选）"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button type="button" class="btn btn-delete" onclick="closeModal('approvalModal')">取消</button>
+                    <button type="submit" class="btn btn-approve">确认</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentPage = 1;
+        let currentPageSize = 20;
+        let currentKeyword = '';
+        let currentStatus = '';
+        let totalUsers = 0;
+        let totalPages = 0;
+        
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadRegistrationStatus();
+            loadStats();
+            loadUsers();
+            
+            // 回车键搜索
+            document.getElementById('searchKeyword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchUsers();
+                }
+            });
+        });
+        
+        function checkLoginStatus() {
+            const token = getAdminToken();
+            const adminUser = localStorage.getItem('admin_user');
+            
+            if (!token || !adminUser) {
+                alert('请先登录');
+                window.location.href = '/login';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(adminUser);
+                document.getElementById('adminUsername').textContent = user.username;
+                currentUser = user;
+            } catch (error) {
+                console.error('Failed to parse admin user:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+            window.location.href = '/login';
+        }
+        
+        // 加载注册状态
+        async function loadRegistrationStatus() {
+            try {
+                const response = await fetch('/api/admin/registration-status', {
+                    headers: {
+                        'Authorization': getAdminToken()
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const toggle = document.getElementById('registrationToggle');
+                    const statusText = document.getElementById('registrationStatus');
+                    
+                    toggle.checked = data.enabled;
+                    statusText.textContent = data.enabled ? '注册开放' : '注册关闭';
+                }
+            } catch (error) {
+                console.error('Failed to load registration status:', error);
+            }
+        }
+        
+        // 注册开关事件监听 - 简单版本
+        document.getElementById('registrationToggle').addEventListener('change', async function() {
+            const enabled = this.checked;
+            const originalState = !enabled;
+            
+            try {
+                const response = await fetch('/api/admin/registration-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': getAdminToken()
+                    },
+                    body: JSON.stringify({
+                        enabled: enabled
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const statusText = document.getElementById('registrationStatus');
+                    statusText.textContent = enabled ? '注册开放' : '注册关闭';
+                    alert(`注册已${enabled ? '开放' : '关闭'}`);
+                } else {
+                    // 恢复原来的状态
+                    this.checked = originalState;
+                    alert('操作失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Failed to update registration status:', error);
+                // 恢复原来的状态
+                this.checked = originalState;
+                alert('网络错误，请重试');
+            }
+        });
+        
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/stats', {
+                    headers: {
+                        'Authorization': getAdminToken()
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load stats');
+                }
+                
+                // 桌面端统计卡片
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.total}</div>
+                        <div class="stat-label">总用户</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.pending}</div>
+                        <div class="stat-label">待审批</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.approved}</div>
+                        <div class="stat-label">已批准</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.expired}</div>
+                        <div class="stat-label">已过期</div>
+                    </div>
+                `;
+                
+                document.getElementById('stats').innerHTML = statsHtml;
+                
+                // 移动端统计卡片 - 一行4个横向布局
+                const statsGridHtml = `
+                    <div class="stat-card-horizontal">
+                        <div class="stat-number-horizontal">${data.stats.total}</div>
+                        <div class="stat-label-horizontal">总用户</div>
+                    </div>
+                    <div class="stat-card-horizontal">
+                        <div class="stat-number-horizontal">${data.stats.pending}</div>
+                        <div class="stat-label-horizontal">待审批</div>
+                    </div>
+                    <div class="stat-card-horizontal">
+                        <div class="stat-number-horizontal">${data.stats.approved}</div>
+                        <div class="stat-label-horizontal">已批准</div>
+                    </div>
+                    <div class="stat-card-horizontal">
+                        <div class="stat-number-horizontal">${data.stats.expired}</div>
+                        <div class="stat-label-horizontal">已过期</div>
+                    </div>
+                `;
+                
+                document.getElementById('statsGrid').innerHTML = statsGridHtml;
+                
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+                if (error.message.includes('Unauthorized')) {
+                    window.location.href = '/login';
+                }
+            }
+        }
+        
+        // 加载用户列表
+        async function loadUsers(page = 1) {
+            try {
+                // 显示加载状态
+                document.getElementById('usersTable').classList.add('loading');
+                
+                currentPage = page;
+                
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    page_size: currentPageSize
+                });
+                
+                if (currentKeyword) {
+                    params.append('keyword', currentKeyword);
+                }
+                
+                if (currentStatus) {
+                    params.append('status', currentStatus);
+                }
+                
+                const response = await fetch(`/api/admin/users?${params}`, {
+                    headers: {
+                        'Authorization': getAdminToken()
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load users');
+                }
+                
+                let tableHtml = '';
+                if (data.users && data.users.length > 0) {
+                    data.users.forEach(user => {
+                        const statusClass = `status-${user.status}`;
+                        
+                        // 只有已批准用户才显示过期时间
+                        const expiryDate = user.status === 'approved' ? formatDate(user.expiry_date) : '-';
+                        const createdAt = formatDate(user.created_at);
+                        
+                        tableHtml += `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td class="${statusClass}">${getStatusText(user.status)}</td>
+                                <td>${expiryDate}</td>
+                                <td>${createdAt}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        ${user.status === 'pending' ? `
+                                            <button class="btn btn-approve" onclick="openApprovalModal(${user.id})">审批</button>
+                                        ` : ''}
+                                        ${user.status === 'approved' ? `
+                                            <button class="btn btn-disable" onclick="disableUser(${user.id})">禁用</button>
+                                        ` : ''}
+                                        ${user.status === 'rejected' ? `
+                                            <button class="btn btn-enable" onclick="enableUser(${user.id})">启用</button>
+                                        ` : ''}
+                                        <button class="btn btn-delete" onclick="deleteUser(${user.id})">删除</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tableHtml = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: #666;">
+                                暂无用户数据
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                document.getElementById('usersTable').innerHTML = tableHtml;
+                
+                // 更新分页信息
+                totalUsers = data.total || 0;
+                totalPages = Math.ceil(totalUsers / currentPageSize);
+                updatePagination();
+                updateTotalInfo();
+                
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                if (error.message.includes('Unauthorized')) {
+                    window.location.href = '/login';
+                } else {
+                    document.getElementById('usersTable').innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: #dc3545;">
+                                加载失败: ${error.message}
+                            </td>
+                        </tr>
+                    `;
+                }
+            } finally {
+                document.getElementById('usersTable').classList.remove('loading');
+            }
+        }
+        
+        // 搜索用户
+        function searchUsers() {
+            currentKeyword = document.getElementById('searchKeyword').value.trim();
+            currentStatus = document.getElementById('statusFilter').value;
+            currentPage = 1;
+            loadUsers(currentPage);
+        }
+        
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchKeyword').value = '';
+            document.getElementById('statusFilter').value = '';
+            currentKeyword = '';
+            currentStatus = '';
+            currentPage = 1;
+            loadUsers(currentPage);
+        }
+        
+        // 更改每页显示数量
+        function changePageSize() {
+            currentPageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            loadUsers(currentPage);
+        }
+        
+        // 更新总数信息
+        function updateTotalInfo() {
+            const start = (currentPage - 1) * currentPageSize + 1;
+            const end = Math.min(currentPage * currentPageSize, totalUsers);
+            document.getElementById('totalInfo').textContent = 
+                `共 ${totalUsers} 条记录，显示 ${start}-${end}`;
+        }
+        
+        // 更新分页控件
+        function updatePagination() {
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            const pagesContainer = document.getElementById('paginationPages');
+            
+            // 更新上一页/下一页按钮状态
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            
+            // 生成页码按钮
+            let pagesHtml = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // 调整起始页，确保显示maxVisiblePages个页码
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // 第一页和省略号
+            if (startPage > 1) {
+                pagesHtml += `<button class="pagination-btn" onclick="loadUsers(1)">1</button>`;
+                if (startPage > 2) {
+                    pagesHtml += `<span style="padding: 0.5rem;">...</span>`;
+                }
+            }
+            
+            // 页码按钮
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                pagesHtml += `<button class="pagination-btn ${activeClass}" onclick="loadUsers(${i})">${i}</button>`;
+            }
+            
+            // 最后一页和省略号
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagesHtml += `<span style="padding: 0.5rem;">...</span>`;
+                }
+                pagesHtml += `<button class="pagination-btn" onclick="loadUsers(${totalPages})">${totalPages}</button>`;
+            }
+            
+            pagesContainer.innerHTML = pagesHtml;
+        }
+        
+        // 上一页
+        function previousPage() {
+            if (currentPage > 1) {
+                loadUsers(currentPage - 1);
+            }
+        }
+        
+        // 下一页
+        function nextPage() {
+            if (currentPage < totalPages) {
+                loadUsers(currentPage + 1);
+            }
+        }
+        
+        // 改进的日期格式化函数
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                // 处理指针类型的日期字段（可能为 null）
+                if (dateString === null || dateString === undefined) {
+                    return '-';
+                }
+                
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    return '-';
+                }
+                
+                // 格式化日期和时间
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            } catch (error) {
+                console.error('Date format error:', error, 'for date:', dateString);
+                return '-';
+            }
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待审批',
+                'approved': '已批准',
+                'rejected': '已拒绝',
+                'expired': '已过期'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function openApprovalModal(userId) {
+            console.log('Opening approval modal for user ID:', userId);
+            document.getElementById('approvalUserId').value = userId;
+            document.getElementById('approvalModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 审批表单提交
+        document.getElementById('approvalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('approvalUserId').value;
+            const action = document.getElementById('approvalAction').value;
+            const expiryDays = document.getElementById('expiryDays').value;
+            const reason = document.getElementById('approvalReason').value;
+            
+            console.log('Approval request:', { userId, action, expiryDays, reason });
+            
+            try {
+                const response = await fetch('/api/users/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': getAdminToken()
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        action: action,
+                        expiry_days: parseInt(expiryDays),
+                        reason: reason
+                    })
+                });
+                
+                if (response.ok) {
+                    closeModal('approvalModal');
+                    loadUsers(currentPage);
+                    loadStats();
+                    alert('操作成功！');
+                } else {
+                    const result = await response.json();
+                    alert('操作失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Approval failed:', error);
+                alert('操作失败！');
+            }
+        });
+        
+        async function enableUser(userId) {
+            if (!confirm('确定要启用这个用户吗？')) return;
+            
+            console.log('Enabling user ID:', userId);
+            
+            try {
+                const response = await fetch(`/api/admin/users/${userId}/enable`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': getAdminToken()
+                    }
+                });
+                
+                if (response.ok) {
+                    loadUsers(currentPage);
+                    loadStats();
+                    alert('用户启用成功！');
+                } else {
+                    const result = await response.json();
+                    alert('操作失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Enable user failed:', error);
+                alert('操作失败！');
+            }
+        }
+        
+        async function disableUser(userId) {
+            if (!confirm('确定要禁用这个用户吗？')) return;
+            
+            console.log('Disabling user ID:', userId);
+            
+            try {
+                const response = await fetch(`/api/admin/users/${userId}/disable`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': getAdminToken()
+                    }
+                });
+                
+                if (response.ok) {
+                    loadUsers(currentPage);
+                    loadStats();
+                    alert('用户禁用成功！');
+                } else {
+                    const result = await response.json();
+                    alert('操作失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Disable user failed:', error);
+                alert('操作失败！');
+            }
+        }
+        
+        async function deleteUser(userId) {
+            if (!confirm('确定要删除这个用户吗？此操作不可恢复！')) return;
+            
+            console.log('Deleting user ID:', userId);
+            
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': getAdminToken()
+                    }
+                });
+                
+                if (response.ok) {
+                    loadUsers(currentPage);
+                    loadStats();
+                    alert('用户删除成功！');
+                } else {
+                    const result = await response.json();
+                    alert('操作失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Delete user failed:', error);
+                alert('操作失败！');
+            }
+        }
+        
+        function getAdminToken() {
+            return localStorage.getItem('admin_token');
+        }
+        
+        // 每30秒刷新一次数据
+        setInterval(() => {
+            loadStats();
+            loadUsers(currentPage);
+        }, 30000);
+    </script>
+    <div class="footer">
+        Powered by <a href="https://github.com/hostemail/EmbyManager" target="_blank">EmbyManager</a>
+    </div>
+</body>
+</html>

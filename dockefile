@@ -1,0 +1,36 @@
+# 第一阶段：构建阶段（如果是编译型语言）
+# FROM golang:alpine as builder
+# ... 构建步骤 ...
+
+# 第二阶段：运行时镜像
+FROM alpine:3.19
+
+# 1. 设置镜像源并安装基础组件
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache tzdata ca-certificates && \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    addgroup -S app && \
+    adduser -S app -G app && \
+    rm -rf /var/cache/apk/*
+
+# 2. 配置工作目录
+WORKDIR /app
+RUN mkdir -p /app/configs && \
+    mkdir -p /app/web && \
+    chown -R app:app /app && \
+    chmod 755 /app && \
+    chmod 700 /app/configs
+
+# 3. 复制可执行文件
+ARG TARGETARCH
+COPY --chown=app:app EmbyManager-linux-${TARGETARCH} /app/EmbyManager
+COPY --chown=app:app configs/ /app/configs/
+COPY --chown=app:app web/ /app/web/
+RUN chmod +x /app/EmbyManager
+
+ENV PORT="8080" \
+    TZ="Asia/Shanghai"
+
+EXPOSE ${PORT}
+USER app
+ENTRYPOINT ["./EmbyManager"]

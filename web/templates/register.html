@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">用户注册 - 加载中...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+            padding: 30px;
+            min-height: 520px; /* 固定最小高度，保持两个页面高度一致 */
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        
+        /* 关闭状态样式 */
+        .closed-container {
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .closed-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #ff6b6b;
+        }
+        
+        .title {
+            color: #333;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+        
+        .description {
+            color: #888;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+        
+        .contact-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .contact-title {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .contact-details {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .actions {
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 注册表单样式 */
+        .registration-form {
+            text-align: left;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-content {
+            flex: 1;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .logo h1 {
+            color: #333;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            color: #666;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        
+        .form-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+        
+        .links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            text-align: left;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1rem 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        /* 平板设备优化 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                max-width: 380px;
+                min-height: 480px;
+                margin-bottom: 15px;
+            }
+            
+            .footer {
+                max-width: 380px;
+            }
+        }
+        
+        /* 移动设备优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 0 0 15px 0;
+                border-radius: 10px;
+                max-width: 100%;
+                min-height: 460px;
+            }
+            
+            .icon {
+                font-size: 40px;
+                margin-bottom: 12px;
+            }
+            
+            .title {
+                font-size: 22px;
+            }
+            
+            .subtitle {
+                font-size: 15px;
+            }
+            
+            .description {
+                font-size: 13px;
+            }
+            
+            .contact-info {
+                padding: 14px;
+                margin: 16px 0;
+            }
+            
+            .logo h1 {
+                font-size: 22px;
+            }
+            
+            .logo p {
+                font-size: 13px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            input {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .footer {
+                padding: 0.5rem 0;
+                font-size: 12px;
+                max-width: 100%;
+            }
+        }
+        
+        /* 小屏幕手机优化 */
+        @media (max-width: 360px) {
+            .container {
+                padding: 18px;
+                min-height: 440px;
+                margin-bottom: 10px;
+            }
+            
+            .icon {
+                font-size: 36px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 注册关闭提示页面 -->
+    <div class="container closed-container hidden" id="closedPage">
+        <div class="closed-content">
+            <div class="icon">🚫</div>
+            <h1 class="title">注册暂未开放</h1>
+            <p class="subtitle">系统当前暂不开放注册</p>
+            <p class="description" id="serviceDescription">加载中...</p>
+            
+            <div class="contact-info">
+                <div class="contact-title">如需注册账号</div>
+                <div class="contact-details">
+                    请联系系统管理员(WX:191494)获取更多信息<br>
+                    或等待注册功能重新开放。
+                </div>
+            </div>
+        </div>
+        
+        <div class="links">
+            <a href="/user-login">已有账号？前往登录</a>
+        </div>
+    </div>
+
+    <!-- 注册表单页面 -->
+    <div class="container" id="registrationForm">
+        <div class="registration-form">
+            <div class="form-content">
+                <div class="logo">
+                    <h1 id="formTitle">用户注册</h1>
+                    <p id="welcomeText">欢迎注册</p>
+                </div>
+                
+                <div id="message"></div>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" id="username" name="username" required minlength="3" placeholder="请输入用户名（至少3位）">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email" name="email" required placeholder="请输入邮箱地址">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" id="password" name="password" required minlength="6" placeholder="请输入密码（至少6位）">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">确认密码</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6" placeholder="请再次输入密码">
+                    </div>
+                    
+                    <button type="submit" class="form-btn">注册账号</button>
+                </form>
+            </div>
+            
+            <div class="links">
+                <a href="/user-login">已有账号？立即登录</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="footer">
+        Powered by <a href="https://github.com/hostemail/EmbyManager" target="_blank">EmbyManager</a>
+    </div>
+
+    <script>
+        // 全局变量存储配置信息
+        let appConfig = {
+            serverName: '新时代雷锋精品影院'
+        };
+
+        // 页面加载时获取配置信息
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadAppConfig();
+            updatePageContent();
+            checkRegistrationStatus();
+        });
+
+        // 加载应用配置
+        async function loadAppConfig() {
+            try {
+                const response = await fetch('/api/users/app-config');
+                if (response.ok) {
+                    const data = await response.json();
+                    appConfig = {
+                        serverName: data.server_name || appConfig.serverName
+                    };
+                }
+            } catch (error) {
+                console.error('Failed to load app config:', error);
+            }
+        }
+
+        // 更新页面内容
+        function updatePageContent() {
+            // 更新页面标题
+            document.getElementById('pageTitle').textContent = `用户注册 - ${appConfig.serverName}`;
+            
+            // 更新服务描述
+            document.getElementById('serviceDescription').textContent = 
+                `${appConfig.serverName}，在线4K、杜比全景声，限爱好者加入。`;
+            
+            // 更新表单标题
+            // document.getElementById('formTitle').textContent = `用户注册 - ${appConfig.serverName}`;
+            document.getElementById('welcomeText').textContent = `欢迎注册${appConfig.serverName}`;
+        }
+
+        // 检查注册状态
+        async function checkRegistrationStatus() {
+            try {
+                const response = await fetch('/api/users/registration-status');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (!data.enabled) {
+                        // 注册关闭状态 - 显示关闭页面
+                        showClosedPage();
+                    } else {
+                        // 注册开放状态 - 显示注册表单
+                        showRegistrationForm();
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to check registration status:', error);
+                // 如果无法获取状态，默认显示注册表单
+                showRegistrationForm();
+            }
+        }
+
+        // 显示注册关闭页面
+        function showClosedPage() {
+            document.getElementById('closedPage').classList.remove('hidden');
+            document.getElementById('registrationForm').classList.add('hidden');
+        }
+
+        // 显示注册表单
+        function showRegistrationForm() {
+            document.getElementById('closedPage').classList.add('hidden');
+            document.getElementById('registrationForm').classList.remove('hidden');
+        }
+
+        // 表单提交处理
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 验证密码是否一致
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showMessage('两次输入的密码不一致，请重新输入', 'error');
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const data = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '注册中...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('注册成功！请等待管理员审批。', 'success');
+                    this.reset();
+                } else {
+                    showMessage(result.error || '注册失败，请重试', 'error');
+                }
+            } catch (error) {
+                showMessage('网络错误，请检查连接后重试', 'error');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
